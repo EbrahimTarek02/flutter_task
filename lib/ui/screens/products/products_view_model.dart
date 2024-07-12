@@ -18,14 +18,6 @@ class ProductsViewModel extends Cubit<ProductsStates> {
 
   ProductsViewModel(this.getProductsUseCase, this.searchForProductUseCase) : super(ProductsInitialState());
 
-  int calculateProductPriceBeforeDiscount(num? originalPrice, num? discountPercentage) {
-    if (originalPrice == null) return 0;
-
-    if (discountPercentage == null) return originalPrice.ceil();
-
-    return (originalPrice + (originalPrice * (discountPercentage / 100))).ceil();
-  }
-
   Future<void> getProducts() async{
     emit(ProductsLoadingState());
 
@@ -36,6 +28,14 @@ class ProductsViewModel extends Cubit<ProductsStates> {
     }, (success) {
       emit(ProductsSuccessState(success));
     });
+  }
+
+  int calculateProductPriceBeforeDiscount(num? originalPrice, num? discountPercentage) {
+    if (originalPrice == null) return 0;
+
+    if (discountPercentage == null) return originalPrice.ceil();
+
+    return (originalPrice + (originalPrice * (discountPercentage / 100))).ceil();
   }
 
   Future<void> searchForProducts() async{
@@ -52,5 +52,12 @@ class ProductsViewModel extends Cubit<ProductsStates> {
         emit(ProductsSuccessState(success));
       });
     });
+  }
+
+  void clearSearch() {
+    if (searchController.text.isNotEmpty) {
+      searchController.clear();
+      getProducts();
+    }
   }
 }

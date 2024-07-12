@@ -5,6 +5,7 @@ import 'package:flutter_task/domain/di/di.dart';
 import 'package:flutter_task/ui/screens/products/products_states.dart';
 import 'package:flutter_task/ui/screens/products/products_view_model.dart';
 import 'package:flutter_task/ui/screens/products/widgets/product_item.dart';
+import 'package:flutter_task/ui/shared_widget/failure_widget.dart';
 import 'package:flutter_task/ui/utils/app_assets.dart';
 import 'package:flutter_task/ui/utils/app_colors.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -74,13 +75,26 @@ class _ProductsScreenState extends State<ProductsScreen> {
                             fontWeight: FontWeight.w300
                         ),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+
                         prefixIcon: const ImageIcon(
                             AssetImage(AppAssets.searchIcon)
                         ),
-                        prefixIconColor: AppColors.primaryColor
+                        prefixIconColor: AppColors.primaryColor,
+
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            viewModel.clearSearch();
+                          },
+                          icon: const Icon(
+                            Icons.clear,
+                            color: AppColors.primaryColor,
+                          )
+                        ),
+                        suffixIconColor: AppColors.primaryColor
                     ),
                   ),
                 ),
+
                 IconButton(
                     onPressed: () {},
                     icon: const ImageIcon(
@@ -89,6 +103,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 )
               ],
             ),
+
             SizedBox(height: MediaQuery.sizeOf(context).height * 0.03,),
 
             Expanded(
@@ -96,12 +111,15 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 bloc: viewModel,
                 builder: (context, state) {
                   if (state is ProductsErrorState) {
-                    return Center(
-                      child: Text(state.errorMessage)
+                    return FailureWidget(
+                      errorMessage: state.errorMessage,
+                      tryAgainFunction: (){
+                        viewModel.searchForProducts();
+                      }
                     );
                   }
 
-                  else if (state is ProductsSuccessState<GetProductsResponse>) {
+                  else if (state is ProductsSuccessState<GetProductsResponse> && (state.data.products?.isNotEmpty ?? false)) {
                     return GridView.builder(
                       physics: const BouncingScrollPhysics(),
                       scrollDirection: Axis.vertical,
@@ -113,6 +131,30 @@ class _ProductsScreenState extends State<ProductsScreen> {
                         childAspectRatio: 0.7
                       ),
                       itemBuilder: (context, index) => ProductItem(product: state.data.products![index])
+                    );
+                  }
+
+                  else if (state is ProductsSuccessState<GetProductsResponse> && (state.data.products?.isEmpty ?? true)) {
+                    return Center(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(AppAssets.emptyListImage),
+                            SizedBox(height: MediaQuery.sizeOf(context).height * 0.05,),
+                            Text(
+                              "What are you searching for?!",
+                              textAlign: TextAlign.start,
+                              style: GoogleFonts.poppins(
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primaryColor),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            SizedBox(height: MediaQuery.sizeOf(context).height * 0.1,),
+                          ],
+                        ),
+                      ),
                     );
                   }
 

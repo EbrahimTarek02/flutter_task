@@ -7,4 +7,5 @@ class AppAssets {
   static const String searchIcon = "${imagesPath}search_icon.png";
   static const String cartIcon = "${imagesPath}cart_icon.png";
   static const String plusIcon = "${imagesPath}plus_icon.png";
+  static const String emptyListImage = "${imagesPath}empty_list_image.jpeg";
 }
