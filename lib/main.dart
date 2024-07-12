@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_task/domain/di/di.dart';
 import 'package:flutter_task/ui/screens/products/products_screen.dart';
 
 void main() {
+  configureDependencies();
   runApp(const MyApp());
 }
 
