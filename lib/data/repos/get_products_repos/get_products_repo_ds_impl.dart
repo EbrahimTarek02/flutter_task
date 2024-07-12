@@ -14,7 +14,7 @@ class GetProductsRepoDsImpl extends GetProductsRepoDs {
     String baseUrl = "dummyjson.com";
     String endPoint = "products";
 
-    // try {
+    try {
       Uri uri = Uri.https(baseUrl, endPoint);
 
       Response response = await get(uri);
@@ -27,9 +27,9 @@ class GetProductsRepoDsImpl extends GetProductsRepoDs {
       else {
         return const Left(Constants.defaultErrorMessage);
       }
-    // } catch(_) {
-    //   return const Left(Constants.defaultErrorMessage);
-    // }
+    } catch(_) {
+      return const Left(Constants.defaultErrorMessage);
+    }
   }
 
 }

@@ -29,6 +29,12 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   @override
+  void dispose() {
+    viewModel.debounce?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -37,60 +43,66 @@ class _ProductsScreenState extends State<ProductsScreen> {
         ),
       ),
 
-      body: BlocBuilder<ProductsViewModel, ProductsStates>(
-        bloc: viewModel,
-        builder: (context, state) {
-          if (state is ProductsErrorState) {
-            return Center(
-              child: Text(state.errorMessage)
-            );
-          }
-          else if (state is ProductsSuccessState<GetProductsResponse>) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: viewModel.controller,
-                          keyboardType: TextInputType.text,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: viewModel.searchController,
+                    keyboardType: TextInputType.text,
 
-                          style: const TextStyle(
-                              height: 1.0
-                          ),
+                    style: const TextStyle(
+                        height: 1.0
+                    ),
 
-                          decoration: InputDecoration(
-                              filled: true,
-                              fillColor: AppColors.white,
-                              focusColor: AppColors.white,
-                              hintText: "What do you search for?",
-                              hintStyle: GoogleFonts.poppins(
-                                  color: AppColors.primaryColor,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w300
-                              ),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
-                              prefixIcon: const ImageIcon(
-                                  AssetImage(AppAssets.searchIcon)
-                              ),
-                              prefixIconColor: AppColors.primaryColor
-                          ),
+                    onChanged: (_) {
+                      viewModel.searchForProducts();
+                    },
+
+                    decoration: InputDecoration(
+                        filled: true,
+                        fillColor: AppColors.white,
+                        focusColor: AppColors.white,
+                        hintText: "What do you search for?",
+                        hintStyle: GoogleFonts.poppins(
+                            color: AppColors.primaryColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w300
                         ),
-                      ),
-                      IconButton(
-                          onPressed: () {},
-                          icon: const ImageIcon(
-                              AssetImage(AppAssets.cartIcon)
-                          )
-                      )
-                    ],
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+                        prefixIcon: const ImageIcon(
+                            AssetImage(AppAssets.searchIcon)
+                        ),
+                        prefixIconColor: AppColors.primaryColor
+                    ),
                   ),
-                  SizedBox(height: MediaQuery.sizeOf(context).height * 0.03,),
-                  Expanded(
-                    child: GridView.builder(
+                ),
+                IconButton(
+                    onPressed: () {},
+                    icon: const ImageIcon(
+                        AssetImage(AppAssets.cartIcon)
+                    )
+                )
+              ],
+            ),
+            SizedBox(height: MediaQuery.sizeOf(context).height * 0.03,),
+
+            Expanded(
+              child: BlocBuilder<ProductsViewModel, ProductsStates>(
+                bloc: viewModel,
+                builder: (context, state) {
+                  if (state is ProductsErrorState) {
+                    return Center(
+                      child: Text(state.errorMessage)
+                    );
+                  }
+
+                  else if (state is ProductsSuccessState<GetProductsResponse>) {
+                    return GridView.builder(
                       physics: const BouncingScrollPhysics(),
                       scrollDirection: Axis.vertical,
                       itemCount: state.data.products!.length,
@@ -101,16 +113,17 @@ class _ProductsScreenState extends State<ProductsScreen> {
                         childAspectRatio: 0.7
                       ),
                       itemBuilder: (context, index) => ProductItem(product: state.data.products![index])
-                    ),
-                  )
-                ],
+                    );
+                  }
+
+                  else {
+                    return const Center(child: CircularProgressIndicator(color: AppColors.primaryColor,),);
+                  }
+                },
               ),
-            );
-          }
-          else {
-            return const Center(child: CircularProgressIndicator(color: AppColors.primaryColor,),);
-          }
-        },
+            ),
+          ],
+        ),
       ),
     );
   }
