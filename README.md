@@ -5,7 +5,7 @@ This is a Flutter implementation of a products screen, following the principles 
 - Displays a list of products
 - Fetches the product data from a repository
 - Separates the concerns between the ViewModel, Repository, and the UI code
-- Includes two images in a horizontal view
+
 
 <div style="display: flex; justify-content: center;">
   
